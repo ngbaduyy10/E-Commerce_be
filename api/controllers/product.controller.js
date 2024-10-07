@@ -4,6 +4,7 @@ module.exports.getProducts = async (req, res) => {
     try {
         const find = {deleted: false};
         const sort = {};
+        let limit = 20;
 
         if (req.body.filters) {
             const {filters} = req.body;
@@ -22,7 +23,11 @@ module.exports.getProducts = async (req, res) => {
             sort.createdAt = -1;
         }
 
-        const products = await Product.find(find).sort(sort);
+        if (req.body.limit) {
+            limit = req.body.limit;
+        }
+
+        const products = await Product.find(find).sort(sort).limit(limit);
         res.status(200).json({
             success: true,
             data: products

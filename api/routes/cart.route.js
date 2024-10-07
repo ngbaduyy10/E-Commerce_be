@@ -8,4 +8,6 @@ router.get('/:id', cartController.getCartItems);
 
 router.patch('/update', cartController.updateCart);
 
+router.patch('/delete', cartController.deleteCartItem);
+
 module.exports = router;

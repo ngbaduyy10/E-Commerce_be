@@ -11,9 +11,11 @@ module.exports.addToCart = async (req, res) => {
                 items: [{ productId, quantity: 1 }],
             });
             await newCart.save();
+            await newCart.populate('items.productId', 'image title price salePrice');
             return res.status(201).json({
                 success: true,
                 message: "Added to cart successfully",
+                data: newCart,
             });
         } else {
             const index = cart.items.findIndex((item) => item.productId.toString() === productId);
@@ -23,9 +25,11 @@ module.exports.addToCart = async (req, res) => {
                 cart.items.push({ productId, quantity: 1 });
             }
             await cart.save();
+            await cart.populate('items.productId', 'image title price salePrice');
             return res.status(200).json({
                 success: true,
                 message: "Added to cart successfully",
+                data: cart,
             });
         }
     } catch (error) {
@@ -75,9 +79,45 @@ module.exports.updateCart = async (req, res) => {
             cart.items[index].quantity = quantity;
         }
         await cart.save();
+        await cart.populate('items.productId', 'image title price salePrice');
         return res.status(200).json({
             success: true,
             message: "Cart updated successfully",
+            data: cart,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+}
+
+module.exports.deleteCartItem = async (req, res) => {
+    try {
+        const { userId, productId } = req.body;
+        const cart = await Cart.findOne({ userId });
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found",
+            });
+        }
+        const index = cart.items.findIndex((item) => item.productId.toString() === productId);
+        if (index === -1) {
+            return res.status(404).json({
+                success: false,
+                message: "Item not found",
+            });
+        }
+        cart.items.splice(index, 1);
+        await cart.save();
+        await cart.populate('items.productId', 'image title price salePrice');
+
+        return res.status(200).json({
+            success: true,
+            message: "Item removed from cart successfully",
+            data: cart,
         });
     } catch (error) {
         return res.status(500).json({
