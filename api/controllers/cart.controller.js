@@ -126,3 +126,29 @@ module.exports.deleteCartItem = async (req, res) => {
         });
     }
 }
+
+module.exports.clearCart = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const cart = await Cart.findOne({ userId });
+        if (!cart) {
+            return res.status(404).json({
+                success: false,
+                message: "Cart not found",
+            });
+        }
+
+        cart.items = [];
+        await cart.save();
+        return res.status(200).json({
+            success: true,
+            message: "Cart cleared successfully",
+            data: cart,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+    }
