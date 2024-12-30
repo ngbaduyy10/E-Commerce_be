@@ -76,9 +76,9 @@ module.exports.createOrder = async (req, res) => {
 
 module.exports.updateOrderStatus = async (req, res) => {
     try {
-        const {orderId} = req.params;
         const {status} = req.body;
-        const order = await Order.updateOne({_id: orderId}, {status});
+        const id = req.params.orderId;
+        const order = await Order.updateOne({_id: id}, {orderStatus: status});
         res.status(200).json({
             success: true,
             message: 'Successfully updated order status',
